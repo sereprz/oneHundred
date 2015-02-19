@@ -55,15 +55,18 @@ def main():
 		if boxx != None and boxy != None:
 
 			if score == 0:
+				if mouseClicked:
+					score+= 1
+					board[boxx, boxy] = score
 				
 			if score != 0 and board[boxx, boxy] == 0:
 				if manhattanDist(which(board, score), (boxx, boxy)) == 3:
-					drawhighlightedBox(boxx, boxy, GREEN)
+					drawHighlightedBox(boxx, boxy, GREEN)
 					if mouseClicked:
 						score += 1
 						board[boxx, boxy] = score
 				else:
-					drawhighlightedBox(boxx, boxy, RED)
+					drawHighlightedBox(boxx, boxy, RED)
 
 			drawBoard(board)
 		
@@ -119,7 +122,7 @@ def getBoxAtPixel(board, x, y):
 				return(boxx, boxy)
 	return(None, None)
 
-def drawhighlightedBox(boxx, boxy, col):
+def drawHighlightedBox(boxx, boxy, col):
 	left, top = leftTopCoordsOfBox(boxx, boxy)
 	pygame.draw.rect(WIN, col, (left, top, SQUARE_SIZE, SQUARE_SIZE), 3)
 
