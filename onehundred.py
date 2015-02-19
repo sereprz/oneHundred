@@ -16,6 +16,66 @@ RED = (255, 0, 0)
 FILLED = (64, 224, 208) # turquoise
 EMPTY = (248, 248, 255) # ghost white
 
+FPS = 60 # 
+
+def main():
+	global WIN, FPSCLOCK
+
+	pygame.init()
+
+	WIN = pygame.display.set_mode((SQUARE_SIZE * BOARD_SIZE + MARGINX * 2  + GAP * (BOARD_SIZE + 2), SQUARE_SIZE * BOARD_SIZE + TOP_MARGIN + GAP * (BOARD_SIZE + 2) + BOTTOM_MARGIN))
+	FPSCLOCK = pygame.time.Clock()
+
+	pygame.display.set_caption('100')
+
+	WIN.fill(BACKGROUND)
+
+	board = initBoard(BOARD_SIZE)
+	drawBoard(board)
+
+	mousex = None
+	mousey = None
+
+	score = 0
+
+	while True:
+		mouseClicked = False
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				pygame.quit()
+				sys.exit()
+			elif event.type == MOUSEMOTION:
+				mousex, mousey = event.pos
+			elif event.type == MOUSEBUTTONUP:
+				mousex, mousey = event.pos
+				mouseClicked = True
+
+		boxx, boxy = getBoxAtPixel(board, mousex, mousey)
+
+		if boxx != None and boxy != None:
+
+			if score == 0:
+				
+			if score != 0 and board[boxx, boxy] == 0:
+				if manhattanDist(which(board, score), (boxx, boxy)) == 3:
+					drawhighlightedBox(boxx, boxy, GREEN)
+					if mouseClicked:
+						score += 1
+						board[boxx, boxy] = score
+				else:
+					drawhighlightedBox(boxx, boxy, RED)
+
+			drawBoard(board)
+		
+		# draws boarder of box when mouse over
+		
+
+		pygame.display.update()
+		FPSCLOCK.tick(FPS)
+
+
+
+
 # functions
 
 def which(m, val):
@@ -42,7 +102,7 @@ def drawBoard(board):
 				col = FILLED
 			pygame.draw.rect(WIN, col, (MARGINX + (i + 1) * GAP + i * SQUARE_SIZE, TOP_MARGIN + (j + 1) * GAP + j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
-def leftTopCoordsOfBox(boxx, boxy, boxsize):
+def leftTopCoordsOfBox(boxx, boxy):
 	# convert board coordinates into pixel coordinates
 	left = boxx * (SQUARE_SIZE + GAP) + MARGINX + GAP
 	top = boxy * (SQUARE_SIZE + GAP) + TOP_MARGIN + GAP
@@ -53,11 +113,16 @@ def getBoxAtPixel(board, x, y):
 	dim = len(board)
 	for boxx in range(dim):
 		for boxy in range(dim):
-			left, top = leftTopCoordsOfBox(boxx, boxy, SQUARE_SIZE)
+			left, top = leftTopCoordsOfBox(boxx, boxy)
 			boxRect = pygame.Rect(left, top, SQUARE_SIZE, SQUARE_SIZE)
 			if boxRect.collidepoint(x,y):
 				return(boxx, boxy)
 	return(None, None)
+
+def drawhighlightedBox(boxx, boxy, col):
+	left, top = leftTopCoordsOfBox(boxx, boxy)
+	pygame.draw.rect(WIN, col, (left, top, SQUARE_SIZE, SQUARE_SIZE), 3)
+
 
 def manhattanDist(box1, box2):
 	# calculates manhattan distance between two boxes on the board
@@ -65,54 +130,6 @@ def manhattanDist(box1, box2):
 	return math.fabs(box1[0]-box2[0]) + math.fabs(box1[1]-box2[1])
 
 
-pygame.init()
-WIN = pygame.display.set_mode((SQUARE_SIZE * BOARD_SIZE + MARGINX * 2  + GAP * (BOARD_SIZE + 2), SQUARE_SIZE * BOARD_SIZE + TOP_MARGIN + GAP * (BOARD_SIZE + 2) + BOTTOM_MARGIN))
-pygame.display.set_caption('100')
 
-WIN.fill(BACKGROUND)
-
-board = initBoard(BOARD_SIZE)
-drawBoard(board)
-
-mousex = None
-mousey = None
-
-score = 0
-
-while True:
-	mouseClicked = False
-	for event in pygame.event.get():
-		if event.type == QUIT:
-			pygame.quit()
-			sys.exit()
-		elif event.type == MOUSEMOTION:
-			mousex, mousey = event.pos
-		elif event.type == MOUSEBUTTONUP:
-			mousex, mousey = event.pos
-			mouseClicked = True
-
-	boxx, boxy = getBoxAtPixel(board, mousex, mousey)
-
-	if boxx != None and boxy != None and mouseClicked == False:
-		left, top = leftTopCoordsOfBox(boxx, boxy, SQUARE_SIZE)
-		pygame.draw.rect(WIN, GREEN, (left, top, SQUARE_SIZE, SQUARE_SIZE), 2)
-
-	if boxx != None and boxy != None and mouseClicked:
-		if score != 0:
-			if manhattanDist(which(board, score), (boxx, boxy)) == 3:
-
-				score += 1
-				board[boxx, boxy] = score
-				drawBoard(board)
-
-		else:
-			score += 1
-			board[boxx, boxy] = score
-			drawBoard(board)
-		
-		# draws boarder of box when mouse over
-		
-
-	pygame.display.update()
-
-
+if __name__ == '__main__':
+	main()
