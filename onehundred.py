@@ -28,18 +28,19 @@ def main():
 
 	pygame.display.set_caption('100')
 
-	WIN.fill(BACKGROUND)
-
 	board = initBoard(BOARD_SIZE)
-	drawBoard(board)
-
+	
 	mousex = None
 	mousey = None
 
 	score = 0
 
 	while True:
+		WIN.fill(BACKGROUND)
+		drawBoard(board)
+
 		mouseClicked = False
+		
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				pygame.quit()
@@ -70,12 +71,8 @@ def main():
 
 			drawBoard(board)
 		
-		# draws boarder of box when mouse over
-		
-
 		pygame.display.update()
 		FPSCLOCK.tick(FPS)
-
 
 
 
@@ -124,7 +121,7 @@ def getBoxAtPixel(board, x, y):
 
 def drawHighlightedBox(boxx, boxy, col):
 	left, top = leftTopCoordsOfBox(boxx, boxy)
-	pygame.draw.rect(WIN, col, (left, top, SQUARE_SIZE, SQUARE_SIZE), 3)
+	pygame.draw.rect(WIN, col, (left, top, SQUARE_SIZE, SQUARE_SIZE), 4)
 
 
 def manhattanDist(box1, box2):
