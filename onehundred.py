@@ -4,7 +4,7 @@ from pygame.locals import *
 # board size
 SQUARE_SIZE = 30
 BOARD_SIZE = 10
-GAP = 4
+GAP = 3
 MARGINX = 50
 TOP_MARGIN = 100
 BOTTOM_MARGIN = 30
@@ -12,12 +12,27 @@ WINWIDTH = SQUARE_SIZE * BOARD_SIZE + MARGINX * 2  + GAP * (BOARD_SIZE + 2)
 WINHEIGHT = SQUARE_SIZE * BOARD_SIZE + TOP_MARGIN + GAP * (BOARD_SIZE + 2) + BOTTOM_MARGIN
 
 # colors
-BACKGROUND = (204, 229, 255)
+BACKGROUND = (60,179,113) # medium sea green
 GREEN = (0, 255, 0)
+DGREEN = (50,205,50) # lime green
+PURPLE = (153,50,204) # dark orchid
 RED = (255, 0, 0)
 FILLED = (64, 224, 208) # turquoise
-EMPTY = (248, 248, 255) # ghost white
+EMPTY =  (192, 192, 192) # light grey
+WHITE = (248, 248, 255)
 TEXTCOLOR = (0, 0, 0)
+BLACK = TEXTCOLOR
+
+cols = [[BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK],\
+[BLACK, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK], \
+[BLACK, WHITE, DGREEN, BLACK, DGREEN, BLACK, DGREEN, BLACK, WHITE, BLACK], \
+[BLACK, WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, WHITE, BLACK], \
+[BLACK, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, BLACK], \
+[BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK], \
+[WHITE, WHITE, WHITE, BLACK, BLACK, BLACK, BLACK, WHITE, WHITE, WHITE], \
+[WHITE, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, WHITE], \
+[BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, WHITE, BLACK, BLACK], \
+[BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK]]
 
 FPS = 60 # 
 
@@ -67,15 +82,16 @@ def main():
 					board[boxx, boxy] = score
 				
 			if score != 0 and board[boxx, boxy] == 0:
-				if manhattanDist(which(board, score), (boxx, boxy)) == 3:
-					drawHighlightedBox(boxx, boxy, GREEN)
+				lastx, lasty = which(board, score)
+				if (boxx, boxy) in nextPossibleMoves(board):
+					drawHighlightedBox(boxx, boxy, GREEN) 
 					if mouseClicked:
 						score += 1
 						board[boxx, boxy] = score
 				else:
 					drawHighlightedBox(boxx, boxy, RED)
 
-		if not moreMovesPossible(board):
+		if len(nextPossibleMoves(board)) == 0:
 			if score < 100:
 				endOfGame = FONT.render('Game over, your score is ' + str(score), True, TEXTCOLOR)
 			else:
@@ -111,7 +127,7 @@ def drawBoard(board):
 			if board[i,j] == 0 :
 				col = EMPTY
 			else:
-				col = FILLED
+				col = cols[j][i]
 			left, top = leftTopCoordsOfBox(i,j)
 			pygame.draw.rect(WIN, col, (left, top, SQUARE_SIZE, SQUARE_SIZE))
 
@@ -142,18 +158,21 @@ def manhattanDist(box1, box2):
 	# box1, box2 tuples of (x,y) coordinates
 	return math.fabs(box1[0]-box2[0]) + math.fabs(box1[1]-box2[1])
 
-def moreMovesPossible(board):
+def nextPossibleMoves(board):
 	boxx, boxy = which(board, numpy.amax(board))
-	possibleMoves =  0
-	for i in xrange(BOARD_SIZE):
-		for j in xrange(BOARD_SIZE):
-			if manhattanDist((boxx,boxy), (i,j)) == 3:
-				if board[i,j] == 0:
-					possibleMoves += 1
-	return possibleMoves > 0
+	next = [(boxx + 3, boxy),(boxx, boxy+3),(boxx-3, boxy),(boxx, boxy-3),\
+	(boxx-2,boxy+2),(boxx+2,boxy+2),(boxx+2,boxy-2),(boxx-2, boxy -2)]
+	invalid = []
 
-
-
+	for i in next:
+		if (i[0] not in xrange(BOARD_SIZE)) or (i[1] not in xrange(BOARD_SIZE)):
+			invalid.append(i)
+	next = list(set(next) - set(invalid))
+	full = []
+	for i in next:
+		if board[i[0],i[1]] != 0:
+			full.append(i)
+	return(list(set(next) - set(full)))
 
 
 if __name__ == '__main__':
