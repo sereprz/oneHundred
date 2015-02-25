@@ -1,4 +1,4 @@
-## oneHundred
+### oneHundred
 Color all the boxes to uncover Hacker School's logo.
 
 2 consecutive boxes cannot be next to each other
