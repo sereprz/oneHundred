@@ -4,7 +4,7 @@ from pygame.locals import *
 # board size
 SQUARE_SIZE = 30
 BOARD_SIZE = 10
-GAP = 3
+GAP = 2
 MARGINX = 50
 TOP_MARGIN = 100
 BOTTOM_MARGIN = 30
@@ -12,7 +12,7 @@ WINWIDTH = SQUARE_SIZE * BOARD_SIZE + MARGINX * 2  + GAP * (BOARD_SIZE + 2)
 WINHEIGHT = SQUARE_SIZE * BOARD_SIZE + TOP_MARGIN + GAP * (BOARD_SIZE + 2) + BOTTOM_MARGIN
 
 # colors
-BACKGROUND = (60,179,113) # medium sea green
+BACKGROUND = (255,165,0) # orange
 GREEN = (0, 255, 0)
 DGREEN = (50,205,50) # lime green
 PURPLE = (153,50,204) # dark orchid
@@ -71,6 +71,12 @@ def main():
 			elif event.type == MOUSEBUTTONUP:
 				mousex, mousey = event.pos
 				mouseClicked = True
+			elif event.type == KEYDOWN and event.key == K_RETURN:
+				if len(nextPossibleMoves(board)) == 0:
+					score = 0
+					board = initBoard(BOARD_SIZE)
+					drawBoard(board)
+					boxx, boxy = None, None
 
 		boxx, boxy = getBoxAtPixel(board, mousex, mousey)
 
@@ -97,7 +103,8 @@ def main():
 			else:
 				endOfGame = FONT.render('You won', True, TEXTCOLOR)
 
-			WIN.blit(endOfGame, (MARGINX,40))
+			WIN.blit(endOfGame, (MARGINX,30))
+			WIN.blit(FONT.render('Press Enter to start again', True, TEXTCOLOR), (MARGINX, 60))
 		
 		pygame.display.update()
 		FPSCLOCK.tick(FPS)
@@ -130,6 +137,12 @@ def drawBoard(board):
 				col = cols[j][i]
 			left, top = leftTopCoordsOfBox(i,j)
 			pygame.draw.rect(WIN, col, (left, top, SQUARE_SIZE, SQUARE_SIZE))
+			pygame.draw.rect(WIN, BLACK, (left, top, SQUARE_SIZE, SQUARE_SIZE), 1)
+	if numpy.amax(board) > 0:
+		boxx, boxy = which(board, numpy.amax(board))
+		left, top = leftTopCoordsOfBox(boxx, boxy)
+		pygame.draw.rect(WIN, GREEN, (left, top, SQUARE_SIZE, SQUARE_SIZE), 1)
+
 
 def leftTopCoordsOfBox(boxx, boxy):
 	# convert board coordinates into pixel coordinates
